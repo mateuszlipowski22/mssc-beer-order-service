@@ -7,6 +7,7 @@ import guru.sfg.beer.order.service.domain.BeerOrderStatusEnum;
 import guru.sfg.beer.order.service.repositories.BeerOrderRepository;
 import guru.sfg.beer.order.service.services.BeerOrderManagerImpl;
 import guru.sfg.beer.order.service.web.mappers.BeerOrderMapper;
+import guru.sfg.brewery.model.events.AllocateOrderRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jms.core.JmsTemplate;
@@ -32,9 +33,11 @@ public class AllocateOrderAction implements Action<BeerOrderStatusEnum, BeerOrde
 
 
         jmsTemplate.convertAndSend(JmsConfig.VALIDATE_ORDER_QUEUE,
-                beerOrderMapper.beerOrderToDto(beerOrder));
+                AllocateOrderRequest.builder()
+                        .beerOrderDto(beerOrderMapper.beerOrderToDto(beerOrder))
+                        .build());
 
-        log.debug("Sent allocation request to queue for order id "+beerOrderId);
+        log.debug("Sent allocation request to queue for order id " + beerOrderId);
 
     }
 }
