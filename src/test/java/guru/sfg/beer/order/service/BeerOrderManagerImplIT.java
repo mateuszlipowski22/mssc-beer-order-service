@@ -72,16 +72,20 @@ public class BeerOrderManagerImplIT {
     }
 
     @Test
-    void testNewToAllocate() throws JsonProcessingException {
+    void testNewToAllocate() throws JsonProcessingException, InterruptedException {
         BeerDto beerDto = BeerDto.builder().id(beerId).upc("12345").build();
 //        BeerPageList list = new BeerPageList(List.of(beerDto));
 
-        wireMockServer.stubFor(get(BeerServiceImpl.BEER_UPC_PATH_V1+"12345")
+        wireMockServer.stubFor(get("/"+BeerServiceImpl.BEER_UPC_PATH_V1+"12345")
                 .willReturn(okJson(objectMapper.writeValueAsString(beerDto))));
 
         BeerOrder beerOrder = createBeerOrder();
 
         BeerOrder savedBeerOrder = beerOrderManager.newBeerOrder(beerOrder);
+
+        Thread.sleep(5000);
+
+        savedBeerOrder=beerOrderRepository.findById(savedBeerOrder.getId()).orElseThrow(IllegalArgumentException::new);
 
         assertNotNull(savedBeerOrder);
         assertEquals(BeerOrderStatusEnum.ALLOCATED, savedBeerOrder.getOrderStatus());
