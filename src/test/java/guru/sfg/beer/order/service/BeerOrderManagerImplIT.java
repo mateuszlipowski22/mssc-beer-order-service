@@ -86,14 +86,22 @@ public class BeerOrderManagerImplIT {
 
         await().untilAsserted(()->{
             BeerOrder foundOrder = beerOrderRepository.findById(beerOrder.getId()).orElseThrow(IllegalArgumentException::new);
-            assertEquals(BeerOrderStatusEnum.ALLOCATION_PENDING, foundOrder.getOrderStatus());
+            assertEquals(BeerOrderStatusEnum.ALLOCATED, foundOrder.getOrderStatus());
         });
 
+        await().untilAsserted(()->{
+            BeerOrder foundOrder = beerOrderRepository.findById(beerOrder.getId()).orElseThrow(IllegalArgumentException::new);
+            BeerOrderLine line = foundOrder.getBeerOrderLines().iterator().next();
+            assertEquals(line.getOrderQuantity(), line.getQuantityAllocated());
+        });
 
-        savedBeerOrder=beerOrderRepository.findById(savedBeerOrder.getId()).orElseThrow(IllegalArgumentException::new);
+        BeerOrder savedBeerOrder2=beerOrderRepository.findById(savedBeerOrder.getId()).orElseThrow(IllegalArgumentException::new);
 
-        assertNotNull(savedBeerOrder);
-        assertEquals(BeerOrderStatusEnum.ALLOCATED, savedBeerOrder.getOrderStatus());
+        assertNotNull(savedBeerOrder2);
+        assertEquals(BeerOrderStatusEnum.ALLOCATED, savedBeerOrder2.getOrderStatus());
+        savedBeerOrder2.getBeerOrderLines().forEach(line->{
+            assertEquals(line.getOrderQuantity(), line.getQuantityAllocated());
+        });
 
     }
 
