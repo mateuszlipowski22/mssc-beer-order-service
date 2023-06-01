@@ -15,19 +15,16 @@ import java.util.UUID;
 @Component
 public class ValidationResultListeners {
 
+
     private final BeerOrderManager beerOrderManager;
 
     @JmsListener(destination = JmsConfig.VALIDATE_ORDER_RESPONSE_QUEUE)
     public void listen(ValidateOrderResult result){
+        final UUID beerOrderId = result.getOrderID();
 
-        final UUID beerOrderId =result.getOrderID();
-
-        log.debug("Validation Result for Queue Id: "+beerOrderId);
+        log.debug("Validation Result for Order Id: " + beerOrderId);
 
         beerOrderManager.processValidationResult(beerOrderId, result.getIsValid());
-
-
-
     }
 
 }
